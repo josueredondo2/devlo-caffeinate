@@ -19,7 +19,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let estadoItem = NSMenuItem(title: "Inactivo", action: nil, keyEquivalent: "")
     private let detenerItem = NSMenuItem(title: "Detener", action: #selector(detenerAccion), keyEquivalent: "")
     private var opcionItems: [NSMenuItem] = []
-    private let reposoItem = NSMenuItem(title: "Desactivar reposo del sistema (pmset)", action: #selector(alternarReposo), keyEquivalent: "")
+    private let desactivarReposoItem = NSMenuItem(title: "Desactivar reposo del sistema (pmset)", action: #selector(desactivarReposo), keyEquivalent: "")
+    private let activarReposoItem = NSMenuItem(title: "Activar reposo del sistema (pmset)", action: #selector(activarReposo), keyEquivalent: "")
     private var reposoDesactivado = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -44,8 +45,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         detenerItem.target = self
         menu.addItem(detenerItem)
         menu.addItem(.separator())
-        reposoItem.target = self
-        menu.addItem(reposoItem)
+        desactivarReposoItem.target = self
+        menu.addItem(desactivarReposoItem)
+        activarReposoItem.target = self
+        menu.addItem(activarReposoItem)
         menu.addItem(.separator())
         let salir = NSMenuItem(title: "Salir", action: #selector(salir), keyEquivalent: "q")
         salir.target = self
@@ -65,8 +68,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         refrescar()
     }
 
-    @objc private func alternarReposo() {
-        let valor = leerReposoDesactivado() ? 0 : 1
+    @objc private func desactivarReposo() {
+        fijarReposo(1)
+    }
+
+    @objc private func activarReposo() {
+        fijarReposo(0)
+    }
+
+    private func fijarReposo(_ valor: Int) {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
         p.arguments = ["-e", "do shell script \"/usr/bin/pmset -a disablesleep \(valor)\" with administrator privileges"]
@@ -94,7 +104,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         p.waitUntilExit()
         let texto = String(data: datos, encoding: .utf8) ?? ""
         for linea in texto.split(separator: "\n") where linea.contains("SleepDisabled") {
-            return linea.split(separator: " ").last == "1"
+            return linea.split(whereSeparator: { $0 == " " || $0 == "\t" }).last == "1"
         }
         return false
     }
@@ -170,7 +180,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func refrescar() {
         let activo = proceso != nil
-        reposoItem.state = reposoDesactivado ? .on : .off
+        desactivarReposoItem.state = reposoDesactivado ? .on : .off
+        activarReposoItem.state = reposoDesactivado ? .off : .on
         let simbolo = activo || reposoDesactivado ? "cup.and.saucer.fill" : "cup.and.saucer"
         let imagen = NSImage(systemSymbolName: simbolo, accessibilityDescription: "Caffeinate")
         imagen?.isTemplate = true

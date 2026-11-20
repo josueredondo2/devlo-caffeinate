@@ -8,7 +8,7 @@ Al hacer clic en el ícono de la taza aparece un menú con:
 
 - **30 minutos, 1, 2, 3, 4, 5 horas o Infinito**: ejecuta `caffeinate -d` con ese límite de tiempo. El menú muestra cuánto falta y la opción activa queda marcada.
 - **Detener**: termina `caffeinate` antes de tiempo.
-- **Desactivar reposo del sistema (pmset)**: alterna `pmset -a disablesleep` entre `1` y `0`. Pide la contraseña de administrador en cada cambio. Este ajuste persiste aunque se cierre la app.
+- **Desactivar reposo del sistema (pmset)** y **Activar reposo del sistema (pmset)**: ejecutan `pmset -a disablesleep 1` y `0`. La opción vigente queda marcada. Piden la contraseña de administrador en cada cambio. Este ajuste persiste aunque se cierre la app.
 - **Salir**: cierra la app y termina `caffeinate` si estaba activo.
 
 La taza se muestra rellena mientras hay algo activo.
